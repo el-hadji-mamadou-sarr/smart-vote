@@ -404,41 +404,7 @@
     </div></body>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <script>
-        let provider;
-        let signer;
-        let account;
-
-        document.getElementById('connectButton').addEventListener('click', async () => {
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    provider = new ethers.providers.Web3Provider(window.ethereum);
-                    await provider.send("eth_requestAccounts", []);
-                    signer = provider.getSigner();
-                    account = await signer.getAddress();
-                    
-                    document.getElementById('account').textContent = account.substring(0, 6) + '...' + account.substring(38);
-                    document.getElementById('walletInfo').style.display = 'block';
-                    document.getElementById('connectButton').textContent = 'Wallet Connecté';
-                    document.getElementById('connectButton').disabled = true;
-                } catch (error) {
-                    console.error('Erreur de connexion:', error);
-                    alert('Erreur lors de la connexion au wallet');
-                }
-            } else {
-                alert('MetaMask n\'est pas installé');
-            }
-        });
-
-        function vote(candidateIndex) {
-            if (!account) {
-                alert('Veuillez d\'abord connecter votre wallet');
-                return;
-            }
-            
-            const candidates = ['Alice', 'Bob', 'Charlie'];
-            alert(`Vote pour ${candidates[candidateIndex]} enregistré !`);
-        }
-    </script>
+    <script src="abi.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>

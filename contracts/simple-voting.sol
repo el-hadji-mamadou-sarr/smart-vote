@@ -128,7 +128,7 @@ contract SimpleVoting {
         returns (uint256 id, string memory name, uint256 votes)
     {
         uint256 n = _candidates.length;
-        if (n == 0) return (type(uint256).max, "", 0);
+        require(n > 0, "No candidates exist");
 
         uint256 bestId = 0;
         uint256 bestVotes = _candidates[0].votes;

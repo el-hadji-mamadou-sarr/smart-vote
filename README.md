@@ -81,7 +81,7 @@ Le système Smart Vote est composé de trois composants principaux :
 1. **Cloner le repository**
 
 ```bash
-git clone https://github.com/votre-org/smart-vote.git
+git clone https://github.com/el-hadji-mamadou-sarr/smart-vote.git
 cd smart-vote
 ```
 

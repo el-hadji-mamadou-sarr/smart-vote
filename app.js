@@ -21,7 +21,8 @@ connectButton.addEventListener('click', async () => {
         connectButton.textContent = 'Wallet Connecté';
         connectButton.disabled = true;
         
-        await updateResults(); // Commenté temporairement - besoin d'un contrat de vote déployé
+        await updateResults();
+        await updateVotingButton(); // Check voting phase and update button
     } catch (error) {
         console.error('Erreur de connexion:', error);
         alert('Erreur lors de la connexion au wallet');
@@ -40,6 +41,7 @@ async function openVoting() {
         await tx.wait();
         alert('Vote ouvert !');
         await updateResults();
+        await updateVotingButton();
     } catch (error) {
         console.error('Erreur ouverture vote:', error);
         alert('Erreur lors de l\'ouverture du vote: ' + (error?.message || error));
@@ -141,6 +143,41 @@ async function updateResults() {
             if (statsElement) statsElement.textContent = 'Pas de données';
             if (progressElement) progressElement.style.width = '0%';
         });
+    }
+}
+
+// Update voting button based on phase
+async function updateVotingButton() {
+    try {
+        const votingButton = document.querySelector('button[onclick="openVoting()"]');
+        if (!votingButton) return;
+        
+        const phase = await contract.phase();
+        const owner = await contract.owner();
+        
+        if (phase.toString() === '0') { // Setup phase
+            if (userAddress && userAddress.toLowerCase() === owner.toLowerCase()) {
+                votingButton.textContent = 'Ouvrir le Vote';
+                votingButton.disabled = false;
+                votingButton.style.opacity = '1';
+            } else {
+                votingButton.textContent = 'Seul le propriétaire peut ouvrir';
+                votingButton.disabled = true;
+                votingButton.style.opacity = '0.5';
+            }
+        } else if (phase.toString() === '1') { // Voting phase
+            votingButton.textContent = 'Vote Ouvert ✓';
+            votingButton.disabled = true;
+            votingButton.style.opacity = '0.7';
+            votingButton.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
+        } else { // Ended phase
+            votingButton.textContent = 'Vote Fermé';
+            votingButton.disabled = true;
+            votingButton.style.opacity = '0.5';
+            votingButton.style.background = 'linear-gradient(45deg, #6c757d, #495057)';
+        }
+    } catch (error) {
+        console.error('Erreur mise à jour bouton:', error);
     }
 }
 

@@ -1,4 +1,4 @@
-const contractAddress = "0xFB74f209239770f9EcE181BB0e93843e19111A4C"; // Replace with your deployed voting contract address
+const contractAddress = "0xAd2C71fBf34c92fD1689EEEde56833bF9cDB4876"; // Replace with your deployed voting contract address
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 let signer;
@@ -21,7 +21,7 @@ connectButton.addEventListener('click', async () => {
         connectButton.textContent = 'Wallet Connecté';
         connectButton.disabled = true;
         
-        await updateResults();
+        await updateResults(); // Commenté temporairement - besoin d'un contrat de vote déployé
     } catch (error) {
         console.error('Erreur de connexion:', error);
         alert('Erreur lors de la connexion au wallet');
@@ -46,7 +46,7 @@ async function vote(candidateId) {
         await tx.wait();
         alert('Vote confirmé !');
         
-        await updateResults();
+        // await updateResults(); // Commenté temporairement - besoin d'un contrat de vote déployé
     } catch (error) {
         console.error('Erreur de vote:', error);
         alert('Erreur lors du vote: ' + (error?.message || error));

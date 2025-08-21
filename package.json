@@ -1,17 +1,22 @@
 {
   "name": "bacem-dapp",
   "version": "1.0.0",
-  "description": "",
+  "description": "Architecture du projet: 1. Candidats",
   "main": "truffle-config.js",
   "dependencies": {
     "ethers": "^6.15.0"
   },
   "devDependencies": {
+    "hardhat": "^3.0.0",
     "lite-server": "^2.6.1"
   },
   "scripts": {
     "dev": "lite-server"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "directories": {
+    "test": "test"
+  },
+  "keywords": []
 }

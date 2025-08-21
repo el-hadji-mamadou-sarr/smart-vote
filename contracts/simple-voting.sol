@@ -36,13 +36,13 @@ contract SimpleVoting {
         isParticipant[0x64777566321E48DCFC1bf4aB686491Cf7C47718A] = true;
         isParticipant[0xd1327cD9e3332D740d6521aFdE38Cb7fCEFeC641] = true;
         isParticipant[0xAbf158336275e1099C06da465b14A0487098E261] = true;
-        // isParticipant[0x09b73d3BC815B816D7AAE8c14e74e9a27eD22d35] = true;
-        // isParticipant[0xD292ACF8Cd06b2FAdDaFDaf6C6F3530F96F5F688] = true;
-        // isParticipant[0x13bEC533e93f8E5E36e9B281C041434b9B6DE3AB] = true;
-        // isParticipant[0xE03C04e894db1779237734B7824f89a96EBd9559] = true;
-        // isParticipant[0x48D036895a2605Ee03620007fDa1F941d76d2985] = true;
-        // isParticipant[0xb9507723D6efc99A839d4F27397ad587AA121847] = true;
-        // isParticipant[0xa31C6EB4A6885AD8191f94666452ea99811976B6] = true;
+        isParticipant[0x09b73d3BC815B816D7AAE8c14e74e9a27eD22d35] = true;
+        isParticipant[0xD292ACF8Cd06b2FAdDaFDaf6C6F3530F96F5F688] = true;
+        isParticipant[0x13bEC533e93f8E5E36e9B281C041434b9B6DE3AB] = true;
+        isParticipant[0xE03C04e894db1779237734B7824f89a96EBd9559] = true;
+        isParticipant[0x48D036895a2605Ee03620007fDa1F941d76d2985] = true;
+        isParticipant[0xb9507723D6efc99A839d4F27397ad587AA121847] = true;
+        isParticipant[0xa31C6EB4A6885AD8191f94666452ea99811976B6] = true;
     }
 
     function openVoting() external onlyOwner inPhase(Phase.Setup) {

@@ -23,6 +23,7 @@ connectButton.addEventListener('click', async () => {
         
         await updateResults();
         await updateVotingButton(); // Check voting phase and update button
+        await updateCandidateSection(); // Hide/show candidate section based on phase
     } catch (error) {
         console.error('Erreur de connexion:', error);
         alert('Erreur lors de la connexion au wallet');
@@ -42,9 +43,30 @@ async function openVoting() {
         alert('Vote ouvert !');
         await updateResults();
         await updateVotingButton();
+        await updateCandidateSection();
     } catch (error) {
         console.error('Erreur ouverture vote:', error);
         alert('Erreur lors de l\'ouverture du vote: ' + (error?.message || error));
+    }
+}
+
+// Close voting phase (only owner can call this)
+async function closeVoting() {
+    if (!userAddress) {
+        alert('Veuillez d\'abord connecter votre wallet');
+        return;
+    }
+    
+    try {
+        const tx = await contract.closeVoting();
+        await tx.wait();
+        alert('Vote fermé !');
+        await updateResults();
+        await updateVotingButton();
+        await updateCandidateSection();
+    } catch (error) {
+        console.error('Erreur fermeture vote:', error);
+        alert('Erreur lors de la fermeture du vote: ' + (error?.message || error));
     }
 }
 
@@ -67,6 +89,7 @@ async function vote(candidateId) {
         alert('Vote confirmé !');
         
         await updateResults(); // Update results after voting
+        await updateCandidateSection(); // Update candidate section visibility
     } catch (error) {
         console.error('Erreur de vote:', error);
         alert('Erreur lors du vote: ' + (error?.message || error));
@@ -166,18 +189,45 @@ async function updateVotingButton() {
                 votingButton.style.opacity = '0.5';
             }
         } else if (phase.toString() === '1') { // Voting phase
-            votingButton.textContent = 'Vote Ouvert ✓';
-            votingButton.disabled = true;
-            votingButton.style.opacity = '0.7';
-            votingButton.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
+            if (userAddress && userAddress.toLowerCase() === owner.toLowerCase()) {
+                votingButton.textContent = 'Fermer le Vote';
+                votingButton.disabled = false;
+                votingButton.style.opacity = '1';
+                votingButton.style.background = 'linear-gradient(45deg, #dc3545, #c82333)';
+                votingButton.onclick = closeVoting;
+            } else {
+                votingButton.textContent = 'Vote Ouvert ✓';
+                votingButton.disabled = true;
+                votingButton.style.opacity = '0.7';
+                votingButton.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
+            }
         } else { // Ended phase
             votingButton.textContent = 'Vote Fermé';
             votingButton.disabled = true;
             votingButton.style.opacity = '0.5';
             votingButton.style.background = 'linear-gradient(45deg, #6c757d, #495057)';
+            votingButton.onclick = null;
         }
     } catch (error) {
         console.error('Erreur mise à jour bouton:', error);
+    }
+}
+
+// Update candidate section visibility based on phase
+async function updateCandidateSection() {
+    try {
+        const candidateSection = document.querySelector('.section-glass:has(.section-title)');
+        if (!candidateSection) return;
+        
+        const phase = await contract.phase();
+        
+        if (phase.toString() === '2') { // Ended phase - hide candidate section
+            candidateSection.style.display = 'none';
+        } else { // Setup or Voting phase - show candidate section
+            candidateSection.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Erreur mise à jour section candidats:', error);
     }
 }
 

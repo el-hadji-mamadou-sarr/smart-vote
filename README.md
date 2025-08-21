@@ -1,152 +1,116 @@
-Architecture du Smart Contract de Vote
-1. Modèle de données
+***Architecture du Smart Contract de Vote
+Modèle de données
+•	Candidate
+o	id: uint256 — identifiant unique du candidat
 
-Candidate
+o	name: string — nom du candidat
 
-id: uint256 — identifiant unique du candidat.
+o	votes: uint256 — nombre de voix reçues
+•	candidates : Candidate[]
+o	Tableau indexé par id contenant tous les candidats
+•	hasVoted : mapping(address => bool)
+o	Enregistre si une adresse a déjà voté (anti-double-vote strict)
+•	voteOf : mapping(address => uint256)
+o	Trace publique du choix de chaque adresse
 
-name: string — nom du candidat.
+o	Utile pour audit et transparence
 
-votes: uint256 — nombre de voix reçues.
+o	Pour préserver l’anonymat : évolution possible en commit-reveal (v2)
+•	owner : address
+o	Adresse propriétaire du contrat (rôle administrateur)
+•	phase : enum { Setup, Voting, Ended }
+o	Indique l’état courant du scrutin : configuration, en cours ou terminé
+________________________________________
+Événements
+•	CandidateAdded(uint256 id, string name) — ajout d’un candidat
 
-candidates : Candidate[]
+•	VotingOpened(uint256 at) — ouverture officielle du scrutin
 
-Tableau indexé par id contenant tous les candidats.
+•	VotingClosed(uint256 at) — clôture du scrutin
 
-hasVoted : mapping(address => bool)
+•	VoteCast(address voter, uint256 candidateId, uint256 newCount) — enregistrement d’un vote
+________________________________________
+Accès et modificateurs
+•	onlyOwner — réservé aux opérations d’administration (ajout de candidat, ouverture, fermeture)
 
-Enregistre si une adresse a déjà voté (anti-double-vote strict).
-
-voteOf : mapping(address => uint256)
-
-Trace publique du choix de chaque adresse.
-
-Utile pour audit et transparence.
-
-Pour préserver l’anonymat, une évolution possible serait un système commit-reveal (v2).
-
-owner : address
-
-Adresse propriétaire du contrat (rôle administrateur).
-
-phase : enum { Setup, Voting, Ended }
-
-Indique l’état courant du scrutin : configuration, en cours, ou terminé.
-
-2. Événements
-
-CandidateAdded(uint256 id, string name) : ajout d’un candidat.
-
-VotingOpened(uint256 at) : ouverture officielle du scrutin.
-
-VotingClosed(uint256 at) : clôture du scrutin.
-
-VoteCast(address voter, uint256 candidateId, uint256 newCount) : enregistrement d’un vote.
-
-3. Accès et modificateurs
-
-onlyOwner : réservé aux opérations d’administration (ajout de candidat, ouverture, fermeture).
-
-inPhase(Phase) : assure que les appels respectent le cycle du scrutin.
-
-4. Fonctions publiques
+•	inPhase(Phase) — assure que les appels respectent le cycle du scrutin
+________________________________________
+Fonctions publiques
 Lecture
+•	candidateCount() → uint256 — nombre total de candidats
 
-candidateCount() → uint256 : nombre total de candidats.
+•	getCandidate(uint256 id) → (string name, uint256 votes) — détail d’un candidat
 
-getCandidate(uint256 id) → (string name, uint256 votes) : détail d’un candidat.
+•	getCandidates() → string[] — liste des noms des candidats
 
-getCandidates() → string[] : liste des noms des candidats.
+•	getVotes() → uint256[] — tableau des compteurs de votes
 
-getVotes() → uint256[] : tableau des compteurs de votes.
+•	winningCandidate() → (uint256 id, string name, uint256 votes) — candidat en tête
 
-winningCandidate() → (uint256 id, string name, uint256 votes) : candidat en tête.
-
-hasVoted(address) → bool : indique si une adresse a voté (exposé si public).
-
+•	hasVoted(address) → bool — indique si une adresse a voté (exposé si public)
 Écriture
+•	addCandidate(string name) — ajoute un candidat (seulement en phase Setup)
 
-addCandidate(string name) : ajoute un candidat (seulement en phase Setup).
+•	openVoting() — passe de Setup à Voting (admin uniquement)
 
-openVoting() : passe de Setup à Voting (admin uniquement).
+•	closeVoting() — passe de Voting à Ended (admin uniquement)
 
-closeVoting() : passe de Voting à Ended (admin uniquement).
+•	vote(uint256 candidateId) — permet à un électeur de voter une fois pour un candidat existant (en phase Voting uniquement)
+________________________________________
+Invariants et règles
+•	Impossible de voter hors phase Voting
 
-vote(uint256 candidateId) : permet à un électeur de voter une fois pour un candidat existant (en phase Voting uniquement).
+•	candidateId doit être valide (candidateId < candidates.length)
 
-5. Invariants et règles
+•	Une adresse ne peut voter qu’une seule fois (contrôle via hasVoted)
 
-Impossible de voter hors phase Voting.
+•	Les résultats (getVotes, winningCandidate) sont accessibles en temps réel
+________________________________________
+Sécurité et extensibilité
+•	Sécurité
+o	Aucun stockage ni transfert d’ETH
 
-candidateId doit être valide (candidateId < candidates.length).
+o	Pas d’appels externes dans vote(), donc pas de réentrance
 
-Une adresse ne peut voter qu’une seule fois (contrôle via hasVoted).
+o	Solidity ≥ 0.8, protection native contre overflow/underflow
+•	Transparence
+o	Événements pour tracer toutes les étapes
 
-Les résultats (getVotes, winningCandidate) sont accessibles en temps réel.
+o	Lecture on-chain des résultats et du statut des électeurs
+•	Facilité d’usage
+o	Identifiants simples (entiers)
 
-6. Sécurité et extensibilité
+o	Lecture claire de l’état du scrutin
+•	Extensions possibles
+o	Meta-transactions / relayer (EIP-712) : voter sans payer de gas
 
-Sécurité
+o	Fenêtre temporelle : ouverture/fermeture automatique avec timestamps
 
-Aucun stockage ni transfert d’ETH.
+o	Commit-Reveal : renforcer l’anonymat du vote
+________________________________________
+***Logique Anti-Double-Vote
+•	Registre d’électeurs : chaque adresse est associée à un statut indiquant si elle a déjà voté
 
-Pas d’appels externes dans vote(), donc pas de réentrance.
+•	Vérification préalable : lors de l’appel à la fonction vote, le contrat vérifie si l’adresse a déjà voté
 
-Solidity ≥ 0.8, protection native contre overflow/underflow.
+•	Blocage du second vote : si l’adresse figure déjà comme « a voté », la transaction est rejetée
 
-Transparence
+•	Marquage immédiat : dès qu’un vote est accepté, le statut de l’électeur passe à « a voté »
 
-Événements pour tracer toutes les étapes.
-
-Lecture on-chain des résultats et du statut des électeurs.
-
-Facilité d’usage
-
-Identifiants simples (entiers).
-
-Lecture claire de l’état du scrutin.
-
-Extensions possibles
-
-Meta-transactions / relayer (EIP-712) : voter sans payer de gas.
-
-Fenêtre temporelle : ouverture/fermeture automatique avec timestamps.
-
-Commit-Reveal : renforcer l’anonymat du vote.
-
-
-****Logique Anti-Double-Vote et Méthodes Publiques
-Logique anti-double-vote
-
-Registre d’électeurs : chaque adresse est associée à un statut indiquant si elle a déjà voté.
-
-Vérification préalable : lors de l’appel à la fonction de vote, le contrat vérifie si l’adresse est marquée comme ayant déjà voté.
-
-Blocage du second vote : si l’adresse figure déjà comme « a voté », la transaction est rejetée.
-
-Marquage immédiat : dès qu’un vote est accepté, le statut de l’électeur passe à « a voté », empêchant toute tentative ultérieure.
-
-Immuabilité : une fois le statut défini à « a voté », il ne peut pas être réinitialisé ou modifié.
-
-Cette logique garantit qu’un électeur ne peut participer qu’une seule fois, même en cas de tentative de double vote par réexécution ou fraude.
-
+•	Immuabilité : une fois le statut défini à « a voté », il ne peut pas être réinitialisé ou modifié
+________________________________________
 Méthodes publiques
-Administration (réservées au propriétaire)
+•	Administration (propriétaire uniquement)
+o	Initialiser les candidats : enregistre la liste des candidats (ex: Amadou, Demba, Omar)
 
-Initialiser les candidats : enregistre la liste des candidats (Amadou, Demba, Omar).
+o	Ouvrir le scrutin : autorise le démarrage du vote
 
-Ouvrir le scrutin : autorise le démarrage du vote.
+o	Clore le scrutin : met fin au vote et empêche tout nouvel enregistrement
+•	Participation (tous électeurs)
+o	Voter : permet à une adresse de choisir un candidat, sous réserve qu’elle n’ait pas déjà voté et que le scrutin soit ouvert
+•	Consultation (tous utilisateurs)
+o	Consulter les résultats : renvoie le nombre de voix obtenues par chaque candidat
 
-Clore le scrutin : met fin au vote et empêche tout nouvel enregistrement.
+o	Consulter l’état d’un électeur : vérifie si une adresse a déjà voté
 
-Participation (accessibles à tout électeur)
-
-Voter : permet à une adresse de choisir un candidat, sous réserve qu’elle n’ait pas déjà voté et que le scrutin soit ouvert.
-
-Consultation (accessibles à tous)
-
-Consulter les résultats : renvoie le nombre de voix obtenues par chaque candidat.
-
-Consulter l’état d’un électeur : permet de vérifier si une adresse a déjà voté (utile pour transparence).
-
-Consulter l’état du scrutin : indique si le scrutin est ouvert, fermé ou en attente.
+o	Consulter l’état du scrutin : indique si le scrutin est ouvert, fermé ou en attente

@@ -28,6 +28,24 @@ connectButton.addEventListener('click', async () => {
     }
 });
 
+// Open voting phase (only owner can call this)
+async function openVoting() {
+    if (!userAddress) {
+        alert('Veuillez d\'abord connecter votre wallet');
+        return;
+    }
+    
+    try {
+        const tx = await contract.openVoting();
+        await tx.wait();
+        alert('Vote ouvert !');
+        await updateResults();
+    } catch (error) {
+        console.error('Erreur ouverture vote:', error);
+        alert('Erreur lors de l\'ouverture du vote: ' + (error?.message || error));
+    }
+}
+
 // Vote function called from HTML onclick
 async function vote(candidateId) {
     if (!userAddress) {

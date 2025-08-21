@@ -1,9 +1,11 @@
-const wrapped_ethereum = artifacts.require("wrapped_ethereum");
+const SimpleVoting = artifacts.require("SimpleVoting");
 
-module.exports = function(_deployer) {
-  // Use deployer to state migration tasks.
+module.exports = async function(deployer) {
+  const candidates = ["Amadou", "Demba", "Omar"];
 
-  _deployer.deploy(wrapped_ethereum)
-    .then(() => console.log("Wrapped Ethereum contract deployed successfully."))
-    .catch(error => console.error("Deployment failed:", error));
+  await deployer.deploy(SimpleVoting, candidates);
+
+  // _deployer.deploy(SimpleVoting)
+  //   .then(() => console.log("Contrat SimpleVoting déployé avec succès !"))
+  //   .catch(error => console.error("Erreur de déploiement :", error));
 };

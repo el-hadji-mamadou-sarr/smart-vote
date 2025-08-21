@@ -1,4 +1,4 @@
-const contractAddress = "0x2053e9F946E4F973794b73ab656999386BF88e8e"; // Replace with your deployed voting contract address
+const contractAddress = "0x16D3347E3DC0f31ef455a43EC3B33486cAfa9ABf"; // Replace with your deployed voting contract address
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 let signer;

@@ -3,62 +3,442 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wrapped Ethereum Wallet</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Système de Vote Décentralisé</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            font-family: 'Exo 2', sans-serif;
+            color: #ffffff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 0, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 60%, rgba(0, 255, 0, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            animation: backgroundPulse 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes backgroundPulse {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.7; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            padding: 2rem 1rem;
+        }
+
+        .voting-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            animation: containerGlow 6s ease-in-out infinite alternate;
+        }
+
+        @keyframes containerGlow {
+            0% { box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 30px rgba(0, 255, 255, 0.1); }
+            100% { box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 50px rgba(0, 255, 255, 0.2); }
+        }
+
+        .main-title {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00, #00ff00);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .section-glass {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .section-glass:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(0, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .section-glass::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .section-glass:hover::before {
+            left: 100%;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: #00ffff;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .connect-btn {
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            border: none;
+            border-radius: 50px;
+            padding: 1rem 2rem;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            color: #000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .connect-btn:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.5);
+            background: linear-gradient(45deg, #00ffff, #00ff80);
+        }
+
+        .connect-btn:disabled {
+            background: linear-gradient(45deg, #008080, #004080);
+            color: #ffffff;
+            cursor: not-allowed;
+        }
+
+        .wallet-info {
+            margin-top: 1rem;
+            font-family: 'Orbitron', monospace;
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .candidate-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .candidate-item:last-child {
+            border-bottom: none;
+        }
+
+        .candidate-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .vote-btn {
+            background: linear-gradient(45deg, #ff00ff, #ff0080);
+            border: none;
+            border-radius: 25px;
+            padding: 0.7rem 1.5rem;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 15px rgba(255, 0, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .vote-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 25px rgba(255, 0, 255, 0.5);
+            background: linear-gradient(45deg, #ff00ff, #ff4080);
+        }
+
+        .results-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .candidate-result-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .result-stats {
+            font-family: 'Orbitron', monospace;
+            color: #00ffff;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+
+        .progress-bar-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 25px;
+            height: 30px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 25px;
+            transition: width 1s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-alice {
+            background: linear-gradient(90deg, #00ff00, #80ff00);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .progress-bob {
+            background: linear-gradient(90deg, #0080ff, #00ffff);
+            box-shadow: 0 0 20px rgba(0, 128, 255, 0.5);
+        }
+
+        .progress-charlie {
+            background: linear-gradient(90deg, #ffff00, #ff8000);
+            box-shadow: 0 0 20px rgba(255, 255, 0, 0.5);
+        }
+
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: progressShine 2s infinite;
+        }
+
+        @keyframes progressShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .floating-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #00ffff;
+            border-radius: 50%;
+            animation: float 8s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        .particle:nth-child(2n) {
+            background: #ff00ff;
+            animation-duration: 12s;
+        }
+
+        .particle:nth-child(3n) {
+            background: #ffff00;
+            animation-duration: 10s;
+        }
+
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2rem;
+            }
+            .voting-container {
+                margin: 0 1rem;
+                padding: 1.5rem;
+            }
+            .candidate-item {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h1>Wrapped Ethereum Wallet</h1>
-        <button id="connectButton" class="btn btn-primary">Connect to MetaMask</button>
-        <div id="walletInfo" class="mt-3" style="display: none;">
-            <p><strong>Account:</strong> <span id="account"></span></p>
-            <p><strong>WETH Balance:</strong> <span id="balance"></span> ETH</p>
-            <p><strong>Total Deposits:</strong> <span id="totalDeposits"></span> ETH</p>
-            <p><strong>Total Withdrawals:</strong> <span id="totalWithdrawals"></span> ETH</p>
-        </div>
-
-        <div id="actions" class="mt-5" style="display: none;">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Deposit ETH</h5>
-                    <div class="form-group">
-                        <label for="depositAmount">Amount (ETH)</label>
-                        <input type="number" class="form-control" id="depositAmount" placeholder="Enter amount">
-                    </div>
-                    <button id="depositButton" class="btn btn-success">Deposit</button>
-                </div>
-            </div>
-
-            <div class="card mt-3">
-                <div class="card-body">
-                    <h5 class="card-title">Withdraw WETH</h5>
-                    <div class="form-group">
-                        <label for="withdrawAmount">Amount (WETH)</label>
-                        <input type="number" class="form-control" id="withdrawAmount" placeholder="Enter amount">
-                    </div>
-                    <button id="withdrawButton" class="btn btn-warning">Withdraw</button>
-                </div>
-            </div>
-
-            <div class="card mt-3">
-                <div class="card-body">
-                    <h5 class="card-title">Transfer WETH</h5>
-                    <div class="form-group">
-                        <label for="transferAddress">Recipient Address</label>
-                        <input type="text" class="form-control" id="transferAddress" placeholder="Enter address">
-                    </div>
-                    <div class="form-group">
-                        <label for="transferAmount">Amount (WETH)</label>
-                        <input type="number" class="form-control" id="transferAmount" placeholder="Enter amount">
-                    </div>
-                    <button id="transferButton" class="btn btn-info">Transfer</button>
-                </div>
-            </div>
-        </div>
+    <div class="floating-particles">
+        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 20%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 30%; animation-delay: 4s;"></div>
+        <div class="particle" style="left: 40%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 50%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 60%; animation-delay: 5s;"></div>
+        <div class="particle" style="left: 70%; animation-delay: 1.5s;"></div>
+        <div class="particle" style="left: 80%; animation-delay: 3.5s;"></div>
+        <div class="particle" style="left: 90%; animation-delay: 0.5s;"></div>
     </div>
 
+    <div class="container">
+        <div class="voting-container">
+            <h1 class="main-title">Système de Vote Décentralisé</h1>
+            
+            <div class="section-glass text-center">
+                <button id="connectButton" class="connect-btn">Connecter mon wallet</button>
+                <div id="walletInfo" class="wallet-info" style="display: none;">
+                    <small>🔗 Connecté: <span id="account"></span></small>
+                </div>
+            </div>
+
+            <div class="section-glass">
+                <h3 class="section-title">Candidats</h3>
+                <div class="candidate-item">
+                    <span class="candidate-name">🚀 1. Alice</span>
+                    <button class="vote-btn" onclick="vote(0)">Voter</button>
+                </div>
+                <div class="candidate-item">
+                    <span class="candidate-name">⚡ 2. Bob</span>
+                    <button class="vote-btn" onclick="vote(1)">Voter</button>
+                </div>
+                <div class="candidate-item">
+                    <span class="candidate-name">🌟 3. Charlie</span>
+                    <button class="vote-btn" onclick="vote(2)">Voter</button>
+                </div>
+            </div>
+
+            <div class="section-glass">
+                <h3 class="section-title">Résultats en Temps Réel</h3>
+                
+                <div class="results-item">
+                    <div class="result-header">
+                        <span class="candidate-result-name">🚀 Alice</span>
+                        <span class="result-stats">45% (90 votes)</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill progress-alice" style="width: 45%"></div>
+                    </div>
+                </div>
+
+                <div class="results-item">
+                    <div class="result-header">
+                        <span class="candidate-result-name">⚡ Bob</span>
+                        <span class="result-stats">25% (50 votes)</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill progress-bob" style="width: 25%"></div>
+                    </div>
+                </div>
+
+                <div class="results-item">
+                    <div class="result-header">
+                        <span class="candidate-result-name">🌟 Charlie</span>
+                        <span class="result-stats">30% (60 votes)</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill progress-charlie" style="width: 30%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div></body>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <script src="abi.js"></script>
-    <script src="app.js"></script>
+    <script>
+        let provider;
+        let signer;
+        let account;
+
+        document.getElementById('connectButton').addEventListener('click', async () => {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                    await provider.send("eth_requestAccounts", []);
+                    signer = provider.getSigner();
+                    account = await signer.getAddress();
+                    
+                    document.getElementById('account').textContent = account.substring(0, 6) + '...' + account.substring(38);
+                    document.getElementById('walletInfo').style.display = 'block';
+                    document.getElementById('connectButton').textContent = 'Wallet Connecté';
+                    document.getElementById('connectButton').disabled = true;
+                } catch (error) {
+                    console.error('Erreur de connexion:', error);
+                    alert('Erreur lors de la connexion au wallet');
+                }
+            } else {
+                alert('MetaMask n\'est pas installé');
+            }
+        });
+
+        function vote(candidateIndex) {
+            if (!account) {
+                alert('Veuillez d\'abord connecter votre wallet');
+                return;
+            }
+            
+            const candidates = ['Alice', 'Bob', 'Charlie'];
+            alert(`Vote pour ${candidates[candidateIndex]} enregistré !`);
+        }
+    </script>
 </body>
 </html>

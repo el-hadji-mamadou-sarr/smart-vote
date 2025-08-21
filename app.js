@@ -66,7 +66,7 @@ async function vote(candidateId) {
         await tx.wait();
         alert('Vote confirmé !');
         
-        // await updateResults(); // Commenté temporairement - besoin d'un contrat de vote déployé
+        await updateResults(); // Update results after voting
     } catch (error) {
         console.error('Erreur de vote:', error);
         alert('Erreur lors du vote: ' + (error?.message || error));

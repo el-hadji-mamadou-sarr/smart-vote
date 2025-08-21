@@ -84,7 +84,7 @@ Points techniques et corrections à faire
 
 Sécurité et limitations
 -----------------------
-- Le contrat actuel initialise une liste de participants dure-codée dans le constructeur ; pour une vraie application il faut un mécanisme sécurisé d'enregistrement/inscription.
+- Le contrat actuel initialise une liste de participants dur-codée dans le constructeur ; pour une vraie application il faut un mécanisme sécurisé d'enregistrement/inscription.
 - Les adresses présentes sont des exemples Ganache. En production, gérer l'authentification des électeurs est crucial.
 - Les phases empêchent de voter hors période, mais il faut tester les timings et vérifier les conditions de front-running si des fonds sont impliqués.
 

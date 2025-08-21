@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wrapped Ethereum Wallet</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Wrapped Ethereum Wallet</h1>
+        <button id="connectButton" class="btn btn-primary">Connect to MetaMask</button>
+        <div id="walletInfo" class="mt-3" style="display: none;">
+            <p><strong>Account:</strong> <span id="account"></span></p>
+            <p><strong>WETH Balance:</strong> <span id="balance"></span> ETH</p>
+            <p><strong>Total Deposits:</strong> <span id="totalDeposits"></span> ETH</p>
+            <p><strong>Total Withdrawals:</strong> <span id="totalWithdrawals"></span> ETH</p>
+        </div>
+
+        <div id="actions" class="mt-5" style="display: none;">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Deposit ETH</h5>
+                    <div class="form-group">
+                        <label for="depositAmount">Amount (ETH)</label>
+                        <input type="number" class="form-control" id="depositAmount" placeholder="Enter amount">
+                    </div>
+                    <button id="depositButton" class="btn btn-success">Deposit</button>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Withdraw WETH</h5>
+                    <div class="form-group">
+                        <label for="withdrawAmount">Amount (WETH)</label>
+                        <input type="number" class="form-control" id="withdrawAmount" placeholder="Enter amount">
+                    </div>
+                    <button id="withdrawButton" class="btn btn-warning">Withdraw</button>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Transfer WETH</h5>
+                    <div class="form-group">
+                        <label for="transferAddress">Recipient Address</label>
+                        <input type="text" class="form-control" id="transferAddress" placeholder="Enter address">
+                    </div>
+                    <div class="form-group">
+                        <label for="transferAmount">Amount (WETH)</label>
+                        <input type="number" class="form-control" id="transferAmount" placeholder="Enter amount">
+                    </div>
+                    <button id="transferButton" class="btn btn-info">Transfer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="abi.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

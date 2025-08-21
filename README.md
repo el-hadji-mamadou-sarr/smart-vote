@@ -97,8 +97,10 @@ npm install -g truffle
 ```bash
 # Pour le développement local
 # Démarrer la blockchain locale sur 127.0.0.1:8545 avec 10 comptes préfinancés
-ganache-cli
+ganache
 ```
+
+- Mettre l'adresse des participants dans contrats/simple-voting.sol
 
 4. **Compiler et déployer les contrats**
 
@@ -106,12 +108,13 @@ ganache-cli
 truffle compile
 truffle migrate --reset
 ```
+- Mettre l'adresse du contrat dans app.js
 
 5. **Lancer l'application**
 
 ```bash
 npm run dev
-```
+``` 
 
 ## Guide d'utilisation
 

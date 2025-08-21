@@ -33,9 +33,9 @@ contract SimpleVoting {
         _candidates.push(Candidate(2, "Paul", 0));
 
         // --- Participants fixes (adresses d'exemple Ganache/Hardhat) ---
-        isParticipant[0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2] = true;
-        isParticipant[0x4B0897b0513fdc7C541B6d9D7E929C4e5364D2dB] = true;
-        isParticipant[0x583031D1113aD414F02576BD6afaBfb302140225] = true;
+        isParticipant[0x09440060327a7454D5bB39e8e142e3160EB5E9d0] = true;
+        isParticipant[0x99E50b6BA4B2711514a0Dd6b52D37c58D3ae964B] = true;
+        isParticipant[0x04087787671173c990eD55C07c1d2bD824505775] = true;
     }
 
     function openVoting() external onlyOwner inPhase(Phase.Setup) {

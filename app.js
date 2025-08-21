@@ -1,4 +1,4 @@
-const contractAddress = "0xAd2C71fBf34c92fD1689EEEde56833bF9cDB4876"; // Replace with your deployed voting contract address
+const contractAddress = "0x2053e9F946E4F973794b73ab656999386BF88e8e"; // Replace with your deployed voting contract address
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 let signer;
@@ -56,7 +56,33 @@ async function vote(candidateId) {
 // Update results display
 async function updateResults() {
     try {
-        const results = await contract.getResults();
+        // Debug: Check contract deployment and phase
+        console.log("Contract address:", contract.address);
+        console.log("User address:", userAddress);
+        
+        // Check if contract exists
+        const code = await provider.getCode(contract.address);
+        console.log("Contract code exists:", code !== "0x");
+        
+        if (code === "0x") {
+            throw new Error("No contract deployed at this address");
+        }
+        
+        // Check if contract exists and phase
+        try {
+            const phase = await contract.phase();
+            console.log("Contract phase:", phase.toString());
+            const owner = await contract.owner();
+            console.log("Contract owner:", owner);
+            const isParticipant = await contract.isParticipant(userAddress);
+            console.log("Is user authorized participant:", isParticipant);
+        } catch (phaseError) {
+            console.error("Error checking contract state:", phaseError);
+            console.log("Phase error details:", phaseError.reason, phaseError.data);
+            throw new Error("Contract function call failed: " + (phaseError.reason || phaseError.message));
+        }
+        
+        const results = await contract.getVotes();
         
         if (!results || results.length === 0) {
             // Display empty results
